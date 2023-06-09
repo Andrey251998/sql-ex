@@ -182,3 +182,59 @@ where date='1945-01-28'),
 --14
 --Удалите классы, имеющие в базе данных менее трех кораблей (учесть корабли из Outcomes).
 
+delete from  Classes
+where class in
+(select Classes.class from
+(
+select name,class from Ships
+union
+select ship,ship from Outcomes
+) as s
+right join Classes on Classes.class = s.class
+group by Classes.class
+having count(s.name)<3
+)
+
+
+--Задание: 15 (Serge I: 2009-06-05)
+--Из каждой группы ПК с одинаковым номером модели в таблице PC удалить все строки кроме строки с наибольшим для этой группы кодом (столбец code).
+
+delete from PC
+where code not in
+(select max(code) from PC
+group by model)
+
+
+--Задание: 16 (Serge I: 2004-09-09)
+--Удалить из таблицы Product те модели, которые отсутствуют в других таблицах.
+
+delete from Product
+where model not in
+(
+select model from PC
+union
+select model from Laptop
+union
+select model from Printer
+)
+
+
+--Задание: 17 (Serge I: 2017-04-14)
+--Удалить из таблицы PC компьютеры, у которых величина hd попадает в тройку наименьших значений.
+
+delete from PC
+where hd  in
+(
+select top 3 min(hd) from PC
+group by hd
+order by hd
+)
+
+
+--Задание: 18 (Serge I: 2015-12-21)
+--Перенести все концевые пробелы, имеющиеся в названии каждого сражения в таблице Battles, в начало названия.
+
+
+UPDATE Battles
+SET name = REPLACE(name, rtrim(name), '')+rtrim(name)
+
